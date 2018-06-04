@@ -248,7 +248,7 @@ class Tree(TreeNode):
         print(time.time() - start)
         print("start calculating shortest/longest branches")
         start = time.time()
-        self.find_shortest_longest_branches()
+        self.find_shortest_longest_left_right_branches()
         print(time.time() - start)
         print("done")
 
@@ -265,8 +265,9 @@ class Tree(TreeNode):
 
                 attr = {'node_color': 'FFFFFF', 'branch_color': 'FFFFFF',
                         'node_is_visible': True, 'branch_is_visible': True,
-                        'width': 1, 'size': 1, 'shortest': node.shortest.depth,
-                        'longest': node.longest.depth}
+                        'width': 1, 'size': 1, 'shortest': node.shortest.name,
+                        'longest': node.longest.name, 'leftmost':
+                        node.leftmost.name, 'rightmost': node.rightmost.name}
                 edgeData[child.name] = {**nId, **isTip, **coords, **pId,
                                         **pCoords, **attr}
 
@@ -391,7 +392,7 @@ class Tree(TreeNode):
 
         return (max_x, min_x, max_y, min_y)
 
-    def find_shortest_longest_branches(self):
+    def find_shortest_longest_left_right_branches(self):
         """ Finds the shortest and longest branches in each node's subtree.
 
         Parameters
@@ -405,16 +406,33 @@ class Tree(TreeNode):
             if node.is_tip():
                 node.shortest = node
                 node.longest = node
+
+                node.leftmost = node
+                node.rightmost = node
             else:
                 # calculate shortest branch node
                 node.shortest = min([child.shortest for child in
                                     node.children],
-                                    key=attrgetter('depth'))
+                                    key=distance(node, child))
 
                 # calculate longest branch node
                 node.longest = max(
                     [child.longest for child in node.children],
-                    key=attrgetter('depth'))
+                    key=distance(node, child))
+
+                # calculate leftmost branch node
+                node.leftmost = max([child.leftmost for child in
+                                    node.children],
+                                    key=attrgetter('angle'))
+
+                # calculate rightmost branch node
+                node.rightmost = min(
+                    [child.rightmost for child in node.children],
+                    key=attrgetter('angle'))
+
+def distance(n1, n2):
+    return math.sqrt((n1.x2-n2.x2)**2+(n1.y2-n2.y2)**2)
+
 
 
 class Model(object):
@@ -647,3 +665,7 @@ class Model(object):
 
         self.triangles = pd.DataFrame(triData).T
         return self.triangles
+
+def calculate_triangle(self, node):
+
+
