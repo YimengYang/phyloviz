@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 import time
 from operator import attrgetter
+from sympy import *
+#from sympy.geometry import *
 
 
 def name_internal_nodes(tree):
@@ -633,7 +635,8 @@ class Model(object):
                         root = {'rx': self.edge_metadata.at[node.parent.name,
                                                             'x'],
                                 'ry': self.edge_metadata.at[node.parent.name,
-                                                            'y']}
+                                                               'y']}
+                        '''
                         shortN = {'sx': self.edge_metadata
                                   .at[node.parent.shortest.name, 'x'],
                                   'sy': self.edge_metadata
@@ -642,6 +645,10 @@ class Model(object):
                                  .at[node.parent.longest.name, 'x'],
                                  'ly': self.edge_metadata
                                  .at[node.parent.longest.name, 'y']}
+                        '''
+                        point1, point2 = self.calculate_triangle(node.parent)
+                        p1_coords = {'p1x': point1.x, 'p1y': point1.y}
+                        p2_coords = {'p2x': point2.x, 'p2y': point2.y}
 
                         color = {}
                         if node.parent.name is self.tree.name:
@@ -650,8 +657,8 @@ class Model(object):
                             color = {'color': self.edge_metadata
                                      .at[node.parent.name, "branch_color"]}
 
-                        triData[node.parent.name] = {**root, **shortN,
-                                                     **longN, **color}
+                        triData[node.parent.name] = {**root, **p1_coords,
+                                                     **p2_coords, **color}
 
             else:
                 # reset visibility of higher level nodes
@@ -666,6 +673,58 @@ class Model(object):
         self.triangles = pd.DataFrame(triData).T
         return self.triangles
 
-def calculate_triangle(self, node):
+    def calculate_triangle(self, node):
+        root = Point(self.edge_metadata.at[node.name, "x"],
+                     self.edge_metadata.at[node.name, "y"])
 
+
+        left = Point(self.edge_metadata.at[node.leftmost.name, "x"],
+                     self.edge_metadata.at[node.leftmost.name, "y"])
+
+        right = Point(self.edge_metadata.at[node.rightmost.name, "x"],
+                     self.edge_metadata.at[node.rightmost.name, "y"])
+
+
+        shortest = Point(self.edge_metadata.at[node.shortest.name, "x"],
+                     self.edge_metadata.at[node.shortest.name, "y"])
+
+        longest = Point(self.edge_metadata.at[node.longest.name, "x"],
+                     self.edge_metadata.at[node.longest.name, "y"])
+
+        left_line = Line(root, left)
+        right_line = Line(root, right)
+
+        outer_circle = Circle(root, root.distance(longest))
+        inner_circle = Circle(root, root.distance(shortest))
+
+        outer_left_intersection = intersection_cl(outer_circle, left_line, left)
+        #inner_left_intersection = intersection_cl(inner_circle, left_line, left)
+        #outer_right_intersection = intersection_cl(outer_circle, right_line, right)
+        inner_right_intersection = intersection_cl(inner_circle, right_line, right)
+        return outer_left_intersection, inner_right_intersection
+
+    def intersection_cl(circle, line, p):
+        '''Find intersections of a circle and a line and get the one that is on
+           the right side
+
+        Parameters
+        ----------
+
+        circle: Circle
+            The circle we are trying to find intersection with
+        line: Line
+            The line we are trying to find interscetion with
+        p: Point
+            The intersection should on the same side with this point regarding to
+            the center
+
+        Returns
+        -------
+        Point : Point
+            The intersection
+        '''
+        intersections = intersection(circle, line)
+        inter = min([point for point in intersections],key=point.distance(p))
+
+        return inter
 
