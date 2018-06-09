@@ -2,11 +2,11 @@
 Empress is an interactive tree visualization tool. You need to provide three files in order to run it, the tree file (we only support newick currently), the internal node metadata file and the leaf node metadata file.
 
 # Installation
-Please install the following packages in order to run Empress
+Please install the Empress as follows
 
 ```
-conda install tornado
-conda install -c conda-forge scikit-bio
+git clone https://github.com/biocore/empress.git
+pip install -e empress
 ```
 
 # Run
