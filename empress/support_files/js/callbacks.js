@@ -36,7 +36,7 @@ function initCallbacks(){
           return;
         }
         drawingData.selectTree = extractInfo(edgeMetadata, field.edgeFields);
-        updateGridData(edgeMetadata);
+        //updateGridData(edgeMetadata);
         fillBufferData(shaderProgram.selectBuffer, drawingData.selectTree);
         $(".selected-tree-menu").css({top: drawingData.lastMouseY, left: drawingData.lastMouseX, visibility: "visible"});
         requestAnimationFrame(loop);
@@ -103,10 +103,10 @@ function userHighlightSelect() {
   const e = $("#category").val();
 
   selectHighlight(attr, cat, val, l, u, e);
-  $.getJSON(urls.tableChangeURL, {attribute: attr, lower: l, equal: e,
-            upper: u}, function(data){
-    updateGridData(data);
-  });
+  //$.getJSON(urls.tableChangeURL, {attribute: item.attr, lower: l, equal: e,
+  //          upper: u}, function(data){
+  //  updateGridData(data);
+  //});
   addHighlightItem(attr, val, l, u, e);
 }
 
@@ -130,12 +130,12 @@ function addHighlightItem(attr, val, l, u, e) {
   newAttrItem.setAttribute("id", numAttr);
 
   // the button used to display the highlighted tips in SlickGrid
-  let select = document.createElement("INPUT");
-  select.setAttribute("class", "btn")
-  select.setAttribute("type", "button");
-  select.setAttribute("value", "Show in table");
-  select.setAttribute("onclick", "selectTable(this)");
-  newAttrItem.appendChild(select);
+  //let select = document.createElement("INPUT");
+  //select.setAttribute("class", "btn");
+  //select.setAttribute("type", "button");
+  //select.setAttribute("value", "Show in table");
+  //select.setAttribute("onclick", "selectTable(this)");
+  //newAttrItem.appendChild(select);
 
   // the color input used to change the color of the highlighted tips
   let colorSelector = document.createElement("INPUT");
@@ -432,7 +432,7 @@ function clearSelection(obj) {
 
   numUserSelects--;
   if(numUserSelects === 0) {
-    updateGridData(gridInfo.initData);
+    //updateGridData(gridInfo.initData);
     requestAnimationFrame(loop);
   }
   else {

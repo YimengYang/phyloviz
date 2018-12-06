@@ -221,9 +221,9 @@
         $("#show-metadata").prop('checked', true);
         drawingData.edgeCoords = extractInfo(edgeMetadata, field.edgeFields);
         normalizeTree(edgeMetadata);
-        $.getJSON(urls.tableURL, function(data) {
-          initGridTable(data);
-        });
+        //$.getJSON(urls.tableURL, function(data) {
+        //  initGridTable(data);
+        //});
         initWebGl();
         initCallbacks();
         setPerspective();
