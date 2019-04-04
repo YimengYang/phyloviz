@@ -457,3 +457,73 @@ class Tree(TreeNode):
     def test(self):
         print('test')
 
+
+    def polar_to_rec(r, theta):
+        """
+        Convert polar coordinates to rectangular
+        """
+        x = r * np.cos(theta)
+        y = r * np.sin(theta)
+        return(x, y)
+
+    def circular_coords(self, width, height):
+        """
+        Calculate circular layout coordinates
+
+        Parameters
+        ----------
+        height : int
+            The height of the canvas.
+        width : int
+            The width of the canvas.
+
+        Returns
+        -------
+        edgeMeta : pd.DataFrame (Edge metadata)
+            index : str
+                Name of node.
+            Node id: str
+                Name of node
+            x : float
+                x-coordinate of node.
+            y : float
+                y-coordinate of node.
+            Parent id:
+                Name of parent
+            px : float
+                x-coorinate of parent
+            py: float
+                y-coordinate of parent
+        arcMeta : pd.DataFrame (Arc metadata) (x1->x2, clockwise)
+            id1:
+            x1:
+            y1:
+            id2:
+            x2:
+            y2:
+
+        """
+        centerX = width / 2
+        centerY = height / 2
+
+        self.radius = 0
+        # Calculate radius
+        for node in self.preorder(include_self=False):
+            node.radius = node.parent.radius + node.length
+
+        # Calculate theta
+        tips = list(self.tips())
+        delta = len(tips) / (2 * np.pi)
+        theta = 0
+        for node in tips:
+            node.theta = theta
+            theta += delta
+            node.x, node.y = self.polar_to_rec(node.radius, node.theta)
+
+        # Calculate edges
+        for node in self.postorder():
+            node.x
+
+
+
+        edgeMeta = self.to_df()
