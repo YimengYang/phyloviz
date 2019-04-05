@@ -101,7 +101,7 @@ class Tree(TreeNode):
                 node.height = node.length
                 node.leafcount = 1
 
-    def coords(self, height, width):
+    def radial_coords(self, height, width):
         """ Returns coordinates of nodes to be rendered in plot.
 
         Parameters
@@ -168,6 +168,7 @@ class Tree(TreeNode):
         for node in self.postorder():
             node.alpha = 0.0
             for child in node.children:
+
                 item = [
                         child.name,
                         child.id,
@@ -466,7 +467,16 @@ class Tree(TreeNode):
         y = r * np.sin(theta)
         return(x, y)
 
-    def circular_coords(self, width, height):
+    def max_diff(children):
+        min_val = float('inf')
+        max_val = float('-inf')
+        for node in children:
+            min_val = node.theta if node.theta < min
+            max_val = node.theta if node.theta > max
+        return max_val - min_val
+
+
+    def coords(self, height, width):
         """
         Calculate circular layout coordinates
 
@@ -515,15 +525,106 @@ class Tree(TreeNode):
         tips = list(self.tips())
         delta = len(tips) / (2 * np.pi)
         theta = 0
-        for node in tips:
-            node.theta = theta
-            theta += delta
+        for node in self.postorder():
+            if node.is_tip():
+                node.theta = theta
+                theta += delta
+            else:
+                max_node = max(node.children, key=lambda x:x.theta)
+                min_node = min(node.children, key=lambda x:x.theta)
+                node.theta = (max_node.theta + min_node.theta) / 2
             node.x, node.y = self.polar_to_rec(node.radius, node.theta)
 
-        # Calculate edges
+        # Calculate edges that are straight lines
+        edgemeta = self.generate_edgemeta()
+        return edgemeta
+
+    def generate_edgemeta(self):
+        """ Creates a dataframe from the tree
+        """
+        # edge metadata
+        print('starting to create dictionary')
+
+        edgeData = []
+
         for node in self.postorder():
-            node.x
+            # The end point of the edge that is from the tip to the root
+            node.alpha = 0.0
+            for child in node.children:
+                shifted_endpoint = self.polar_to_rec(child.radius - child.length, child.theta)
+                item = [
+                        child.name,
+                        child.id,
+                        child.is_tip(),
+                        child.x,
+                        child.y,
+                        node.name + "_shifted",
+                        shifted_endpoint[0],
+                        shifted_endpoint[1],
+                        DEFAULT_COLOR,
+                        DEFAULT_COLOR,
+                        True,
+                        True,
+                        1,
+                        1
+                        ]
+                edgeData.append(item)
+
+        for node in self.postorder():
+            if not node.is_tip():
+                max_node = max(node.children, key=lambda x:x.theta)
+                min_node = min(node.children, key=lambda x:x.theta)
+                segs = self.generate_argseg(max_node, min_node, node)
+                for s in segs:
+                    item = [
+                            node.name,
+                            node.id,
+                            node.is_tip(),
+                            s[0][0],
+                            s[0][1],
+                            node.name,
+                            s[1][0],
+                            s[1][1],
+                            DEFAULT_COLOR,
+                            DEFAULT_COLOR,
+                            True,
+                            True,
+                            1,
+                            1
+                            ]
+                    edgeData.append(item)
 
 
+        print('create pandas')
+        index_list = pd.Index([
+                'Node_id',
+                'unique_id',
+                'is_tip',
+                'x',
+                'y',
+                'Parent_id',
+                'px',
+                'py',
+                'node_color',
+                'branch_color',
+                'node_is_visible',
+                'branch_is_visible',
+                'width',
+                'size'])
+        # convert to pd.DataFrame
+        edgeMeta = pd.DataFrame(
+            edgeData,
+            columns=index_list)
+        print('done creating pandas')
+        return edgeMeta
 
-        edgeMeta = self.to_df()
+    def generate_arc_seg(self, max_node, min_node, parent, num_seg=10):
+        diff = max_node.theta - min_node.theta
+        delta = diff / num_seg
+        result = []
+        for i in range(num_seg):
+            x1, y1 = self.polar_to_rec(parent.radius, min_node.theta + i*delta)
+            x2, y2 = self.polar_to_rec(parent.radius, min_node.theta + (i+1)*delta)
+            result.append([(x2,y2),(x1,y1)])
+        return result
+
