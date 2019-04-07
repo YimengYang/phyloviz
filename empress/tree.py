@@ -459,7 +459,7 @@ class Tree(TreeNode):
         print('test')
 
 
-    def polar_to_rec(r, theta):
+    def polar_to_rec(self, r, theta):
         """
         Convert polar coordinates to rectangular
         """
@@ -467,12 +467,12 @@ class Tree(TreeNode):
         y = r * np.sin(theta)
         return(x, y)
 
-    def max_diff(children):
+    def max_diff(self, children):
         min_val = float('inf')
         max_val = float('-inf')
         for node in children:
-            min_val = node.theta if node.theta < min
-            max_val = node.theta if node.theta > max
+            min_val = node.theta if node.theta < min_val else min_val
+            max_val = node.theta if node.theta > max_val else max_val
         return max_val - min_val
 
 
@@ -523,7 +523,9 @@ class Tree(TreeNode):
 
         # Calculate theta
         tips = list(self.tips())
-        delta = len(tips) / (2 * np.pi)
+        delta = (2 * np.pi) / len(tips)
+        print(delta)
+        print(len(tips))
         theta = 0
         for node in self.postorder():
             if node.is_tip():
@@ -546,7 +548,6 @@ class Tree(TreeNode):
         print('starting to create dictionary')
 
         edgeData = []
-
         for node in self.postorder():
             # The end point of the edge that is from the tip to the root
             node.alpha = 0.0
@@ -569,12 +570,21 @@ class Tree(TreeNode):
                         1
                         ]
                 edgeData.append(item)
-
+        count = 0
         for node in self.postorder():
             if not node.is_tip():
+                print(node.name)
+                print(node.theta)
+                print(node.radius)
                 max_node = max(node.children, key=lambda x:x.theta)
                 min_node = min(node.children, key=lambda x:x.theta)
-                segs = self.generate_argseg(max_node, min_node, node)
+                print(max_node.name)
+                print(max_node.theta)
+                print(max_node.radius)
+                print(min_node.name)
+                print(min_node.theta)
+                print(min_node.radius)
+                segs = self.generate_arc_seg(max_node, min_node, node)
                 for s in segs:
                     item = [
                             node.name,
@@ -592,8 +602,8 @@ class Tree(TreeNode):
                             1,
                             1
                             ]
+                    count = count + 1
                     edgeData.append(item)
-
 
         print('create pandas')
         index_list = pd.Index([

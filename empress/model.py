@@ -57,7 +57,8 @@ class Model(object):
             print('extracting tree coords from file')
             self.tree.from_file(coords_file)
             self.edge_metadata = self.tree.to_df()
-
+        self.headers = []
+        """
         # read in main metadata
         self.headers = metadata.columns.values.tolist()
         self.edge_metadata = pd.merge(self.edge_metadata, metadata,
@@ -67,8 +68,8 @@ class Model(object):
         self.edge_metadata = self.edge_metadata[self.edge_metadata.x.notnull()]
         self.edge_metadata['index'] = self.edge_metadata['Node_id']
         self.edge_metadata = self.edge_metadata.set_index('index')
+        """
         print(metadata)
-
         self.triangles = pd.DataFrame()
         self.selected_tree = pd.DataFrame()
         self.selected_root = self.tree
