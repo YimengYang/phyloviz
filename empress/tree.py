@@ -8,6 +8,8 @@ import empress.tools as tools
 DEFAULT_COLOR = 'AAAAAA'
 SELECT_COLOR = '00FF00'
 
+scale = 1
+offset = 1
 
 class Tree(TreeNode):
     """
@@ -459,12 +461,12 @@ class Tree(TreeNode):
         print('test')
 
 
-    def polar_to_rec(self, r, theta):
+    def polar_to_rec(self, r, theta, x_offset=0, y_offset=0, scale=1):
         """
         Convert polar coordinates to rectangular
         """
-        x = r * np.cos(theta)
-        y = r * np.sin(theta)
+        x = (r * np.cos(theta) + x_offset) * scale
+        y = (r * np.sin(theta) + y_offset) * scale
         return(x, y)
 
     def max_diff(self, children):
@@ -535,7 +537,7 @@ class Tree(TreeNode):
                 max_node = max(node.children, key=lambda x:x.theta)
                 min_node = min(node.children, key=lambda x:x.theta)
                 node.theta = (max_node.theta + min_node.theta) / 2
-            node.x, node.y = self.polar_to_rec(node.radius, node.theta)
+            node.x, node.y = self.polar_to_rec(node.radius, node.theta,0, offset, scale)
 
         # Calculate edges that are straight lines
         edgemeta = self.generate_edgemeta()
@@ -552,7 +554,7 @@ class Tree(TreeNode):
             # The end point of the edge that is from the tip to the root
             node.alpha = 0.0
             for child in node.children:
-                shifted_endpoint = self.polar_to_rec(child.radius - child.length, child.theta)
+                shifted_endpoint = self.polar_to_rec(child.radius - child.length, child.theta, 0, offset, scale)
                 item = [
                         child.name,
                         child.id,
@@ -573,17 +575,8 @@ class Tree(TreeNode):
         count = 0
         for node in self.postorder():
             if not node.is_tip():
-                print(node.name)
-                print(node.theta)
-                print(node.radius)
                 max_node = max(node.children, key=lambda x:x.theta)
                 min_node = min(node.children, key=lambda x:x.theta)
-                print(max_node.name)
-                print(max_node.theta)
-                print(max_node.radius)
-                print(min_node.name)
-                print(min_node.theta)
-                print(min_node.radius)
                 segs = self.generate_arc_seg(max_node, min_node, node)
                 for s in segs:
                     item = [
@@ -633,8 +626,8 @@ class Tree(TreeNode):
         delta = diff / num_seg
         result = []
         for i in range(num_seg):
-            x1, y1 = self.polar_to_rec(parent.radius, min_node.theta + i*delta)
-            x2, y2 = self.polar_to_rec(parent.radius, min_node.theta + (i+1)*delta)
+            x1, y1 = self.polar_to_rec(parent.radius, min_node.theta + i*delta, 0, offset, scale)
+            x2, y2 = self.polar_to_rec(parent.radius, min_node.theta + (i+1)*delta, 0, offset, scale)
             result.append([(x2,y2),(x1,y1)])
         return result
 
