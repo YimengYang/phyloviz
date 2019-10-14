@@ -510,5 +510,22 @@ define(['ByteArray'], function(ByteArray) {
         return this.select(1, k);
     };
 
+    /**
+     * Returns the length of path from current node to root
+     *
+     * @param {Number} i - current node
+     *
+     * @return {Number}
+     */
+    BPTree.prototype.lengthToRoot = function(i) {
+        length = 0;
+        curr = i;
+        while(this.parent(curr) != -1){
+          length += this.length(this.postorderselect(curr));
+          curr = this.parent(curr);
+        }
+        return length;
+    };
+
     return BPTree;
 });

@@ -349,5 +349,23 @@ define(['Camera', 'Drawer', 'Colorer', 'VectorOps'],
         return this._biom.getSampleCats();
     };
 
+    /**
+     * Returns unifrac value for 2 set of sample IDs
+     * @param {Array} sIds1 - First array of sample IDs to calculate unifrac for
+     * @param {Array} sIds2 - Second array of sample IDs to calculate unifrac for
+     *
+     * @return{Number}
+     */
+     Empress.prototype.unifrac = function(sIds1, sIds2) {
+        var result = 0;
+        uniqObs1 = this._biom.getSampleObs(sIds1);
+        uniqObs2 = this._biom.getSampleObs(sIds2);
+        union = new Set(uniqObs1.concat(uniqObs2));
+        for (var tip in union){
+          result += this._tree.lengthToRoot(tip);
+        }
+        return result;
+    };
+
     return Empress;
 });
