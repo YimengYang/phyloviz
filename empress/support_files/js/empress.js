@@ -335,7 +335,8 @@ define(['Camera', 'Drawer', 'Colorer', 'VectorOps'],
         var keys = Object.keys(this._treeData);
         for (var i = 0; i < keys.length; i++) {
             var key = keys[i];
-            this._treeData[key].color = this.DEFAULT_COLOR;                                                                                         this._treeData[key].visible = true;
+            this._treeData[key].color = this.DEFAULT_COLOR;
+            this._treeData[key].visible = true;
         }
         this._drawer.loadSampleThickBuf([]);
     };
