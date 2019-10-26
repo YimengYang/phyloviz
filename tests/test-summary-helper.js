@@ -37,7 +37,7 @@ require(['jquery', 'ByteArray', 'BPTree', 'BiomTable', 'SummaryHelper'], functio
         test('Test unifrac', function() {
             var sIds1 = ["1", "3"]
             var sIds2 = ["1", "2"]
-            equal(0.5, SummaryHelper.unifrac(this.biomTable, this.tree, sIds1, sIds2));
+            equal(SummaryHelper.unifrac(this.biomTable, this.bpObj, sIds1, sIds2), 0.5);
         });
 
     });

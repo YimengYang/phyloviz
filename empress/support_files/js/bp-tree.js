@@ -206,7 +206,7 @@ define(['ByteArray'], function(ByteArray) {
      * @return{Number}
      */
     BPTree.prototype.length = function(i) {
-        return this.lengths[this.preorder(i) - 1];
+        return this.lengths_[this.preorder(i) - 1];
     };
 
     /**
