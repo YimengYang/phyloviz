@@ -42,6 +42,12 @@ define(["Colorer"], function(Colorer) {
         this.sLineWidth = document.getElementById("sample-line-width");
         this.sUpdateBtn = document.getElementById("sample-update");
 
+        // feature GUI components
+        this.tipColorChk = document.getElementById("tip-color");
+        this.tipColorSel = document.getElementById("tip-color-options");
+        this.fUpdateBtn = document.getElementById("feature-update");
+        this.fColor = document.getElementById("feature-color");
+
         // used in event closers
         var panel = this;
 
@@ -134,6 +140,25 @@ define(["Colorer"], function(Colorer) {
     };
 
     /**
+     * Sets the components of the samples panel back to there default value
+     * and hides the additional options
+     */
+    SidePanel.prototype.__FeaturePanelClose = function() {
+        // disable sample check box
+        this.tipColorChk.checked = false;
+
+        // disable the sample category select
+        this.tipColorSel.disabled = true;
+
+        //reset tree
+        this.empress.resetTree();
+        this.empress.drawTree();
+
+        // clear legends
+        this.legend.clearAllLegends();
+    };
+
+    /**
      * Updates/redraws the tree
      */
     SidePanel.prototype._updateSample = function() {
@@ -156,6 +181,28 @@ define(["Colorer"], function(Colorer) {
     };
 
     /**
+     * Updates/redraws the tree
+     */
+    SidePanel.prototype._updateFeature = function() {
+        this.empress.resetTree();
+
+        // clear legends
+        this.legend.clearAllLegends();
+
+        // color tree
+        this._colorFeatureTree();
+
+        var lWidth = this.sLineWidth.value;
+        if (lWidth !== 1) {
+            this.empress.thickenSameSampleLines(lWidth - 1);
+        }
+        this.empress.drawTree();
+
+        // hide update button
+        this.fUpdateBtn.classList.add("hidden");
+    };
+
+    /**
      * Colors the tree
      */
     SidePanel.prototype._colorSampleTree = function() {
@@ -165,6 +212,17 @@ define(["Colorer"], function(Colorer) {
         var keyInfo = this.empress.colorBySampleCat(colBy, col);
         this.empress.setNonSampleBranchVisibility(hide);
         this.legend.addColorKey(colBy, keyInfo, "node", false);
+    };
+
+    /**
+     * Colors the tree
+     */
+    SidePanel.prototype._colorFeatureTree = function() {
+        var colBy = this.tipColorSel.value;
+        var col = this.fColor.value;
+        console.log(colBy);
+        console.log(col);
+        this.empress.colorBranches(colBy, col);
     };
 
     /**
@@ -228,6 +286,66 @@ define(["Colorer"], function(Colorer) {
 
         this.sUpdateBtn.onclick = function() {
             sp._updateSample();
+        };
+    };
+
+    /**
+     * Initializes Feature components
+     */
+    SidePanel.prototype.addFeatureTab = function() {
+      var sp = this;
+
+       var tipKey = document.getElementById("tip-color-key");
+       var nodeKey = document.getElementById("node-color-key");
+       var result;
+
+       // reset color key
+       tipKey.innerHTML = "";
+       tipKey.classList.add("hidden");
+       nodeKey.innerHTML = "";
+       nodeKey.classList.add("hidden");
+
+       // // The color map selector
+       for (i = 0; i < Colorer.__Colormaps.length; i++) {
+           var map = Colorer.__Colormaps[i];
+           opt = document.createElement("option");
+           opt.innerHTML = map.name;
+           opt.value = map.id;
+
+           if (map.type == "Header") {
+               opt.disabled = true;
+           }
+           this.fColor.appendChild(opt);
+       }
+
+       // add sample categories
+       var selOpts = new Array(['assembly_level']);
+       for (i = 0; i < selOpts.length; i++) {
+           opt = document.createElement("option");
+           opt.value = selOpts[i];
+           opt.innerHTML = selOpts[i];
+           this.tipColorSel.appendChild(opt);
+       }
+
+        // toggle the sample/color map selectors
+        this.tipColorChk.onclick = function() {
+            if (sp.tipColorChk.checked) {
+                sp.tipColorSel.disabled = false;
+                sp.fUpdateBtn.classList.remove("hidden");
+            } else {
+                sp.__FeaturePanelClose();
+            }
+        };
+
+        this.fUpdateBtn.onclick = function() {
+            sp._updateFeature();
+        };
+        this.tipColorSel.onchange = function() {
+            sp.fUpdateBtn.classList.remove("hidden");
+        };
+
+        this.fColor.onchange = function() {
+            sp.fUpdateBtn.classList.remove("hidden");
         };
     };
 

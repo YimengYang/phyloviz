@@ -346,7 +346,6 @@ define(["underscore", "Camera", "Drawer", "Colorer", "VectorOps"], function(
      * @return {Object} Maps keys to colors
      */
     Empress.prototype.colorBySampleCat = function(cat, color) {
-        var tree = this._tree;
         var obs = this._biom.getObsBy(cat);
         var categories = Object.keys(obs);
         categories.sort();
@@ -454,6 +453,29 @@ define(["underscore", "Camera", "Drawer", "Colorer", "VectorOps"], function(
     Empress.prototype.getSampleCategories = function() {
         return this._biom.getSampleCategories();
     };
+
+    /*
+      * directs to appropriate coloring function based on category
+      * @param {string} category - default || the category from metadata to color from
+     */
+     Empress.prototype.colorBranches = function(category, color) {
+       let i = 0;
+       let result = {};
+       let keyInfo = {};
+       var tree = this._tree;
+       // assign colors to categories
+       var cm = this._assignColor(Array('Complete Genome','Chromosome','Contig','Scaffold'), color, true);
+       // assign internal nodes to approperiate category based on its children
+       // iterate using postorder
+       for (i = 1; i < tree.size; i++) {
+           var node = i;
+           var nodeData = this._treeData[node];
+           //console.log(nodeData);
+           if (category in nodeData){
+             this._treeData[node].color = cm[nodeData[category]].color;
+           }
+       }
+     }
 
     return Empress;
 });

@@ -99,6 +99,7 @@
         var sPanel = new SidePanel(document.getElementById('side-panel'),
                                    empress, legend);
         sPanel.addSampleTab();
+        sPanel.addFeatureTab();
         document.querySelectorAll(".collapsible").forEach(function(btn) {
             btn.addEventListener("click", function() {
             this.classList.toggle("active");
